@@ -3,17 +3,33 @@
 
 ## 简介
 其实就是一个可以解析[HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot)数据库
+
 并将总出刀表导出为Excel表格的小工具
+
 ~~其实好像也没什么用~~
 
  ![](https://img.shields.io/github/release/CBGan/clanUtils.svg) ![](https://img.shields.io/github/license/CBGan/clanUtils.svg)
 
 ## 使用方法
-把名为[clanbattle.db]的数据文件拖到[clanUtils.exe]上就可以自动生成表格了
+#### 直接生成表格
+
+把后缀为`.db`的数据库文件拖到`clanUtils.exe`上
+
+按照提示输入相应的参数就可以生成表格了
+
+当机器人只服务于一个工会时可以完全自动生成不需要输入参数
+
+#### 使用指令
+
+在软件目录下使用 `clanUtils <数据库文件路径> <工会对应群号(可缺省)>`
+
+当机器人只服务于一个工会时不需要群号
 
 ## 开源协议
 这个小工具使用了GPL-3.0协议
 
 这个小工具还使用了以下开源库
+
 [System.Data.SQLite](https://system.data.sqlite.org)
+
 [NPOI](https://github.com/tonyqus/npoi)
