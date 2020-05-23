@@ -50,32 +50,6 @@ namespace clanUtils
                                                     DateTime.Today.Year + DateTime.Today.Month;
                     cmd.ExecuteNonQuery();
                 }
-                cmd.CommandText = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='member_data'";
-                if (Convert.ToBoolean(cmd.ExecuteScalar()))
-                {
-                    cmd.CommandText = "DROP TABLE member_data";
-                    cmd.ExecuteNonQuery();
-                }
-            }
-
-            ///API读取INT类型默认为Int32类型会造成溢出
-            ///SQLite不能完全支持SQL语句，只能增加字段，不能drop字段
-            ///需要重新创建一个字段类型为INTEGER临时表,使API可以读取Int64的数值
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
-            {
-                cmd.CommandText =   "CREATE TABLE member_data(" +
-                                    "uid INTEGER NOT NULL," +
-                                    "alt INTEGER NOT NULL," +
-                                    "name VARCHAR NOT NULL," +
-                                    "gid INTEGER NOT NULL," +
-                                    "cid INTEGER NOT NULL," +
-                                    "PRIMARY KEY(uid,alt))";
-                cmd.ExecuteNonQuery();
-            }
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
-            {
-                cmd.CommandText = $"INSERT INTO member_data SELECT * FROM member";
-                cmd.ExecuteNonQuery();
             }
 
             //创建伤害统计表
@@ -107,35 +81,40 @@ namespace clanUtils
                 if (string.IsNullOrEmpty(Gid))//Gid不存在或不合法被置空
                 {
                     //读取群号
-                    List<string> gids = new List<string>();
-                    cmd.CommandText = "SELECT gid FROM clan";
+                    List<long> gids = new List<long>();
+                    List<string> guildName = new List<string>();
+                    cmd.CommandText = "SELECT CAST(gid AS INTEGER) AS gid,name FROM clan";
                     SQLiteDataReader gidReader = cmd.ExecuteReader();
+                    //将群号和名称存入List
                     while (gidReader.Read())
                     {
-                        if (gids.IndexOf(gidReader["gid"].ToString()) == -1) 
+                        if (gids.IndexOf(Convert.ToInt64(gidReader["gid"])) == -1) 
                         {
-                            gids.Add(gidReader["gid"].ToString());
+                            gids.Add(Convert.ToInt64(gidReader["gid"]));
+                            guildName.Add(gidReader["name"].ToString());
                         }
                     }
-                    if (gids.Count == 1) Gid = gids[0];
+                    //只查询到一个群号时直接选择
+                    if (gids.Count == 1) Gid = gids[0].ToString();
                     else
                     {
-                        if(gids.Count==0)
+                        if (gids.Count == 0) 
                         {
                             Console.WriteLine("弟啊你这库里啥都没有啊（半恼）");
                             Console.ReadLine();
                             return;
                         }
-                        Console.WriteLine("选择工会对应群号：");
-                        foreach (string gid in gids)
+                        Console.WriteLine("选择工会对应群号的编号：");
+                        foreach (long gid in gids)
                         {
-                            Console.WriteLine($"{gids.IndexOf(gid)} - {gid}");
+                            Console.WriteLine($"{gids.IndexOf(gid)} - {gid} - {guildName[gids.IndexOf(gid)]}");
                         }
                         int getIndex = -1;
                         while (getIndex < 0 || getIndex > gids.Count - 1)
                         {
                             if (int.TryParse(Console.ReadLine(), out getIndex))//尝试转换输入
                             {
+                                //检查输入数值合法性
                                 if (getIndex < 0 || getIndex > gids.Count - 1) Console.WriteLine("弟啊你选了啥啊,重新写个编号");
                             }
                             else 
@@ -144,7 +123,7 @@ namespace clanUtils
                                 getIndex = -1;
                             }
                         }
-                        Gid = gids[getIndex];
+                        Gid = gids[getIndex].ToString();
                     }
                 }
             }
@@ -154,7 +133,7 @@ namespace clanUtils
             {
                 Console.Write("获取用户数据.....");
                 //创建伤害统计表
-                cmd.CommandText = $"SELECT * FROM member_data WHERE gid={Gid}";
+                cmd.CommandText = $"SELECT CAST(uid AS INTEGER) AS uid,name FROM member WHERE gid={Gid}";
                 cmd.ExecuteNonQuery();
                 SQLiteDataReader dataReader = cmd.ExecuteReader();
                 while (dataReader.Read())
@@ -241,13 +220,6 @@ namespace clanUtils
                 }
             }
 
-            //删除临时表
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
-            {
-                cmd.CommandText = "DROP TABLE member_data";
-                cmd.ExecuteNonQuery();
-            }
-
             //导出到Excel表格
             using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection)) 
             {
@@ -291,7 +263,7 @@ namespace clanUtils
                 stream.Close();
             }
             SQLConnection.Close();
-            Console.WriteLine("伤害统计完成");
+            Console.WriteLine("伤害统计完成\n按下回车退出");
             Console.ReadLine();
         }
     }
