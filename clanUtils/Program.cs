@@ -17,16 +17,19 @@ namespace clanUtils
         ///工会所在群号可以缺省
         static void Main(string[] args)
         {
+            Console.WriteLine($"clanUtils会战出刀统计工具 by饼干\r\nVersion {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}");
             if (args.Length < 1) return;
             GetTotalDmg(args);
+            Console.WriteLine("按下回车退出程序");
+            Console.ReadLine();
         }
 
         struct Member
         {
-            public string uid;
+            public long uid;
             public string name;
-            public int total_dmg;   //总伤害
-            public int times;       //出刀数量   
+            public long total_dmg;   //总伤害
+            public long times;       //出刀数量   
         }
 
         private static void GetTotalDmg(string[] args)
@@ -34,37 +37,11 @@ namespace clanUtils
             Console.WriteLine("将伤害进行统计");
             string DBPath = args[0];                        //数据库路径
             string TableName = null;                        //需要进行统计的表名
-            string Gid = args.Length > 1 ? args[1] : null;  //所在群号
+            string Gid = args.Length > 1 ? args[2] : null;  //所在群号
             List<Member> MemberList = new List<Member>();   //成员列表
 
             SQLiteConnection SQLConnection = new SQLiteConnection($"DATA SOURCE={DBPath}");
             SQLConnection.Open();
-
-            //查找是否已经创建过统计表和临时表,如有则删除
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
-            {
-                cmd.CommandText = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='members_total_dmg_{DateTime.Today.Year}{DateTime.Today.Month}'";
-                if (Convert.ToBoolean(cmd.ExecuteScalar()))
-                {
-                    cmd.CommandText = "DROP TABLE members_total_dmg_" +
-                                                    DateTime.Today.Year + DateTime.Today.Month;
-                    cmd.ExecuteNonQuery();
-                }
-            }
-
-            //创建伤害统计表
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
-            {
-                cmd.CommandText = $"CREATE TABLE members_total_dmg_{DateTime.Today.Year}{DateTime.Today.Month}" +
-                                    " (" +
-                                    "uid INTEGER PRIMARY KEY NOT NULL," +
-                                    "name VARCHAT NOT NULL," +
-                                    "total_dmg INTEGER NOT NULL," +
-                                    "avg_dmg INTEGER NOT NULL," +
-                                    "dmg_times INTEGER NOT NULL" +
-                                    ")";
-                cmd.ExecuteNonQuery();
-            }
 
             //检查gid合法性
             using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
@@ -75,7 +52,9 @@ namespace clanUtils
                     if (!Convert.ToBoolean(cmd.ExecuteScalar()))//gid不合法时置空
                     {
                         Gid = null;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine("不合法群号请重新选择对应群号");
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                 }
                 if (string.IsNullOrEmpty(Gid))//Gid不存在或不合法被置空
@@ -100,8 +79,9 @@ namespace clanUtils
                     {
                         if (gids.Count == 0) 
                         {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
                             Console.WriteLine("弟啊你这库里啥都没有啊（半恼）");
-                            Console.ReadLine();
+                            Console.ForegroundColor = ConsoleColor.White;
                             return;
                         }
                         Console.WriteLine("选择工会对应群号的编号：");
@@ -110,6 +90,7 @@ namespace clanUtils
                             Console.WriteLine($"{gids.IndexOf(gid)} - {gid} - {guildName[gids.IndexOf(gid)]}");
                         }
                         int getIndex = -1;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         while (getIndex < 0 || getIndex > gids.Count - 1)
                         {
                             if (int.TryParse(Console.ReadLine(), out getIndex))//尝试转换输入
@@ -123,6 +104,7 @@ namespace clanUtils
                                 getIndex = -1;
                             }
                         }
+                        Console.ForegroundColor = ConsoleColor.White;
                         Gid = gids[getIndex].ToString();
                     }
                 }
@@ -139,15 +121,22 @@ namespace clanUtils
                 while (dataReader.Read())
                 {
                     Member member = new Member();
-                    member.uid = dataReader["uid"].ToString();
+                    member.uid = Convert.ToInt64(dataReader["uid"]);
                     member.name = dataReader["name"].ToString();
                     member.times = 0;
                     MemberList.Add(member);
                 }
+                if(MemberList.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("未查找到公会存在任意成员");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
                 Console.WriteLine("成功");
             }
 
-            //自动查询数据库表
+            //自动查询数据库出刀表
             using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
             {
                 cmd.CommandText = "SELECT * FROM sqlite_master WHERE type='table'";
@@ -169,8 +158,9 @@ namespace clanUtils
                 }
                 if(tables.Count==0)
                 {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine("ERROR:未找到会战相关表格");
-                    Console.ReadLine();
+                    Console.ForegroundColor = ConsoleColor.White;
                     return;
                 }
                 List<int> dates = new List<int>();//用于存储表格名的日期
@@ -182,18 +172,66 @@ namespace clanUtils
                 TableName = tables[nameIndex];
             }
 
+            //询问表格的导出方式
+            Console.WriteLine(  "选择一个导出方式\r\n" +
+                                "1 - 导出到数据库(创建新的表)\r\n" +
+                                "2 - 导出为Excel表格(xls文件)");
+            int getOutType = 0;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            while (getOutType <= 0 || getOutType >= 3)
+            {
+                if (int.TryParse(Console.ReadLine(), out getOutType))//尝试转换输入
+                {
+                    //检查输入数值合法性
+                    if (getOutType < 0 || getOutType > 2) Console.WriteLine("弟啊你选了啥啊,重新选一个");
+                }
+                else
+                {
+                    Console.WriteLine("弟啊你这不是数字啊 ¿");
+                }
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+
+            if (getOutType == 1)//判断输出类型为数据库
+            {
+                //查找是否已经创建过统计表,如有则删除
+                using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
+                {
+                    cmd.CommandText = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='members_total_dmg_{DateTime.Today.Year}{DateTime.Today.Month}'";
+                    if (Convert.ToBoolean(cmd.ExecuteScalar()))
+                    {
+                        cmd.CommandText = "DROP TABLE members_total_dmg_" +
+                                                        DateTime.Today.Year + DateTime.Today.Month;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                //创建伤害统计表
+                using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
+                {
+                    cmd.CommandText = $"CREATE TABLE members_total_dmg_{DateTime.Today.Year}{DateTime.Today.Month}" +
+                                        " (" +
+                                        "uid INTEGER PRIMARY KEY NOT NULL," +
+                                        "name VARCHAT NOT NULL," +
+                                        "total_dmg INTEGER NOT NULL," +
+                                        "avg_dmg INTEGER NOT NULL," +
+                                        "dmg_times INTEGER NOT NULL" +
+                                        ")";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
             Console.WriteLine("开始计算伤害总和");
             //统计伤害
             for (int i= 0; i < MemberList.Count; i++)
             {
-                Console.WriteLine();
+                Console.WriteLine("============================");
                 using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
                 {
                     cmd.CommandText = $"SELECT * FROM {TableName}" +
                                     $" WHERE uid='{MemberList[i].uid}'";
 
                     //读取相应uid的伤害数据
-                    Member member = MemberList[i];
+                    Member member = MemberList[i];//取出当前索引的成员
                     Console.WriteLine($"正在计算  {MemberList[i].name}  的伤害");
                     SQLiteDataReader memberDataReader = cmd.ExecuteReader();
                     while (memberDataReader.Read())
@@ -203,29 +241,28 @@ namespace clanUtils
                     }
                     MemberList[i] = member;//更新数据
                 }
-                //向统计表插入新行
-                using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
+                Console.WriteLine($"得到  {MemberList[i].name}  的总伤害为  {MemberList[i].total_dmg}  ({MemberList[i].times})");
+                if (getOutType == 1)//判断输出类型为数据库，向统计表插入新行
                 {
-                    cmd.CommandText = "INSERT INTO members_total_dmg_" +
-                                DateTime.Today.Year + DateTime.Today.Month +
-                                " (uid,name,total_dmg,avg_dmg,dmg_times) VALUES (" +
-                                $"'{MemberList[i].uid}'," +
-                                $"'{MemberList[i].name}'," +
-                                $"'{MemberList[i].total_dmg}'," +
-                                $"'{(MemberList[i].total_dmg / MemberList[i].times)}'," +
-                                $"'{MemberList[i].times}'" +
-                                ")";
-                    Console.WriteLine($"得到  {MemberList[i].name}  的总伤害为  {MemberList[i].total_dmg}  ({MemberList[i].times})");
-                    cmd.ExecuteNonQuery();
-                }
+                    using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
+                    {
+                        cmd.CommandText = "INSERT INTO members_total_dmg_" +
+                                    DateTime.Today.Year + DateTime.Today.Month +
+                                    " (uid,name,total_dmg,avg_dmg,dmg_times) VALUES (" +
+                                    $"'{MemberList[i].uid}'," +
+                                    $"'{MemberList[i].name}'," +
+                                    $"'{MemberList[i].total_dmg}'," +
+                                    $"'{(MemberList[i].total_dmg / MemberList[i].times)}'," +
+                                    $"'{MemberList[i].times}'" +
+                                    ")";
+                        cmd.ExecuteNonQuery();
+                    }
+                }                
             }
+            SQLConnection.Close();//关闭数据库连接
 
-            //导出到Excel表格
-            using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection)) 
+            if (getOutType == 2)//判断输出类型为Excel，并写入Excel
             {
-                cmd.CommandText = $"SELECT * FROM members_total_dmg_{DateTime.Today.Year}{DateTime.Today.Month}";
-                SQLiteDataReader memberDataReader = cmd.ExecuteReader();
-
                 HSSFWorkbook dmgExcel = new HSSFWorkbook();//新建一个excel
                 dmgExcel.CreateSheet("公会战伤害统计"); //新建一个工作表
                 ISheet dmgSheet = dmgExcel.GetSheet("公会战伤害统计");
@@ -241,15 +278,15 @@ namespace clanUtils
 
                 //写入伤害数据
                 int rowNum = 1;
-                while (memberDataReader.Read())
+                foreach (Member member in MemberList)
                 {
                     dmgSheet.CreateRow(rowNum);//创建行
                     IRow sheetRow = dmgSheet.GetRow(rowNum); // 获得行索引
-                    sheetRow.CreateCell(0).SetCellValue(memberDataReader["uid"].ToString());
-                    sheetRow.CreateCell(1).SetCellValue(memberDataReader["name"].ToString());
-                    sheetRow.CreateCell(2).SetCellValue(memberDataReader["total_dmg"].ToString());
-                    sheetRow.CreateCell(3).SetCellValue(memberDataReader["avg_dmg"].ToString());
-                    sheetRow.CreateCell(4).SetCellValue(memberDataReader["dmg_times"].ToString());
+                    sheetRow.CreateCell(0).SetCellValue(Convert.ToDouble(member.uid));
+                    sheetRow.CreateCell(1).SetCellValue(member.name);
+                    sheetRow.CreateCell(2).SetCellValue(member.total_dmg);
+                    sheetRow.CreateCell(3).SetCellValue(member.total_dmg / member.times);
+                    sheetRow.CreateCell(4).SetCellValue(member.times);
                     rowNum++;
                 }
                 //设置自动宽度
@@ -258,13 +295,24 @@ namespace clanUtils
                 dmgSheet.AutoSizeColumn(2);
                 dmgSheet.AutoSizeColumn(3);
                 dmgSheet.AutoSizeColumn(4);
-                FileStream stream = new FileStream(@"伤害统计表.xls", FileMode.Create);
-                dmgExcel.Write(stream);
-                stream.Close();
+                try 
+                {
+                    FileStream stream = new FileStream(@"伤害统计表.xls", FileMode.Create);
+                    dmgExcel.Write(stream);
+                    stream.Close();
+                }
+                catch(Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine(e);
+                    Console.WriteLine("写入表格文件时发生错误");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
             }
-            SQLConnection.Close();
-            Console.WriteLine("伤害统计完成\n按下回车退出");
-            Console.ReadLine();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("伤害统计完成");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
