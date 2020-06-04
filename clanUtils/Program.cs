@@ -13,7 +13,7 @@ namespace clanUtils
 {
     class Program
     {
-        ///使用指令 【clanUtils [数据库路径] [工会所在群号]】创建新的总伤害统计表
+        ///使用指令 【clanUtils [数据库路径] [工会所在群号] [指定boss编号]】创建新的总伤害统计表
         ///工会所在群号可以缺省
         static void Main(string[] args)
         {
@@ -37,7 +37,7 @@ namespace clanUtils
             Console.WriteLine("将伤害进行统计");
             string DBPath = args[0];                        //数据库路径
             string TableName = null;                        //需要进行统计的表名
-            string Gid = args.Length > 1 ? args[2] : null;  //所在群号
+            string Gid = args.Length > 1 ? args[1] : null;  //所在群号
             List<Member> MemberList = new List<Member>();   //成员列表
 
             SQLiteConnection SQLConnection = new SQLiteConnection($"DATA SOURCE={DBPath}");
@@ -74,7 +74,11 @@ namespace clanUtils
                         }
                     }
                     //只查询到一个群号时直接选择
-                    if (gids.Count == 1) Gid = gids[0].ToString();
+                    if (gids.Count == 1)
+                    {
+                        Gid = gids[0].ToString();
+                        Console.WriteLine($"只检测刀单一群号，已自动选择群{Gid}");
+                    }
                     else
                     {
                         if (gids.Count == 0) 
@@ -192,7 +196,19 @@ namespace clanUtils
             }
             Console.ForegroundColor = ConsoleColor.White;
 
-            if (getOutType == 1)//判断输出类型为数据库
+            //判断是否指定统计单一boss
+            int bossID = 0;
+            if (args.Length == 3) int.TryParse(args[2], out bossID);
+            if (bossID == 0 || bossID > 5)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("BossID不合法，统计全部数据");
+                bossID = 0;
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
+            //判断输出类型为数据库
+            if (getOutType == 1)
             {
                 //查找是否已经创建过统计表,如有则删除
                 using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
@@ -221,6 +237,7 @@ namespace clanUtils
             }
 
             Console.WriteLine("开始计算伤害总和");
+            if (bossID != 0) Console.WriteLine($"只统计对{bossID}王的伤害");
             //统计伤害
             for (int i= 0; i < MemberList.Count; i++)
             {
@@ -229,6 +246,7 @@ namespace clanUtils
                 {
                     cmd.CommandText = $"SELECT * FROM {TableName}" +
                                     $" WHERE uid='{MemberList[i].uid}'";
+                    if (bossID != 0) cmd.CommandText += $" AND boss='{bossID}'";
 
                     //读取相应uid的伤害数据
                     Member member = MemberList[i];//取出当前索引的成员
@@ -285,7 +303,7 @@ namespace clanUtils
                     sheetRow.CreateCell(0).SetCellValue(Convert.ToDouble(member.uid));
                     sheetRow.CreateCell(1).SetCellValue(member.name);
                     sheetRow.CreateCell(2).SetCellValue(member.total_dmg);
-                    sheetRow.CreateCell(3).SetCellValue(member.total_dmg / member.times);
+                    sheetRow.CreateCell(3).SetCellValue(member.total_dmg / (member.times == 0 ? 1 : member.times));//这里使用三元符号防止除0
                     sheetRow.CreateCell(4).SetCellValue(member.times);
                     rowNum++;
                 }
