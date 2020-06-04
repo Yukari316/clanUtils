@@ -270,7 +270,7 @@ namespace clanUtils
                                     $"'{MemberList[i].uid}'," +
                                     $"'{MemberList[i].name}'," +
                                     $"'{MemberList[i].total_dmg}'," +
-                                    $"'{(MemberList[i].total_dmg / MemberList[i].times)}'," +
+                                    $"'{(MemberList[i].total_dmg / (MemberList[i].times == 0 ? 1 : MemberList[i].times))}'," +
                                     $"'{MemberList[i].times}'" +
                                     ")";
                         cmd.ExecuteNonQuery();
