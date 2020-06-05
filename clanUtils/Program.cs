@@ -1,13 +1,10 @@
-﻿using NPOI.HSSF.UserModel;
-using NPOI.SS.UserModel;
+﻿using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace clanUtils
 {
@@ -281,9 +278,37 @@ namespace clanUtils
 
             if (getOutType == 2)//判断输出类型为Excel，并写入Excel
             {
-                HSSFWorkbook dmgExcel = new HSSFWorkbook();//新建一个excel
-                dmgExcel.CreateSheet("公会战伤害统计"); //新建一个工作表
-                ISheet dmgSheet = dmgExcel.GetSheet("公会战伤害统计");
+                XSSFWorkbook dmgExcel = null;
+                FileStream excelFile = null;
+                //初始化表格名称
+                string sheetName = bossID == 0 ?
+                                        $"公会战伤害统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}" :
+                                        $"{bossID}王出刀统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}";
+
+                if (File.Exists(@"伤害统计表.xlsx"))//查找是否已经存在表
+                {
+                    excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Open);
+                    dmgExcel = new XSSFWorkbook(excelFile);
+                    
+                    //获取表格数据
+                    List<string> sheetNames = new List<string>();
+                    foreach (ISheet sheet in dmgExcel)
+                    {
+                        sheetNames.Add(sheet.SheetName);
+                    }
+                    
+                    if(sheetNames.Where(name => name == sheetName).Count() >= 1)
+                    {
+                        dmgExcel.RemoveSheetAt(dmgExcel.GetSheetIndex(sheetName));
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("发现今天已进行过统计，删除旧表");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                }
+                //不存在文件时新建一个
+                else dmgExcel = new XSSFWorkbook();
+
+                ISheet dmgSheet = dmgExcel.CreateSheet(sheetName); //新建一个工作表
                 dmgSheet.CreateRow(0);
 
                 //写入第一行数据
@@ -315,9 +340,12 @@ namespace clanUtils
                 dmgSheet.AutoSizeColumn(4);
                 try 
                 {
-                    FileStream stream = new FileStream(@"伤害统计表.xls", FileMode.Create);
-                    dmgExcel.Write(stream);
-                    stream.Close();
+                    excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Create);
+                    dmgExcel.Write(excelFile);
+                    excelFile.Close();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("伤害统计完成");
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 catch(Exception e)
                 {
@@ -328,9 +356,6 @@ namespace clanUtils
                     return;
                 }
             }
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("伤害统计完成");
-            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

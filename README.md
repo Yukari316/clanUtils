@@ -6,12 +6,23 @@
 
 并将总出刀表导出为Excel表格的小工具
 
+该工具可以多次调用并且不会覆盖已经生成的表格
+
+如果想要统计单一boss写个bat跑跑就好啦
+
+想要统计多个boss的单独表格就。。。改指令多运行几次就好了（以后也可能写相应功能吧，咕
+
+（以后可能会做有GUI的把,咕咕咕）
+
+
 ~~其实好像也没什么用~~
 
  ![](https://img.shields.io/github/release/CBGan/clanUtils.svg) ![](https://img.shields.io/github/license/CBGan/clanUtils.svg)
 
 ## 使用方法
 #### 直接生成表格
+
+- 此方法只能生成总表
 
 把后缀为`.db`的数据库文件拖到`clanUtils.exe`上
 
