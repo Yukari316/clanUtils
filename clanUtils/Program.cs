@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace clanUtils
 {
     class Program
     {
-        ///使用指令 【clanUtils [数据库路径] [工会所在群号] [指定boss编号]】创建新的总伤害统计表
+        ///使用指令 【clanUtils [数据库路径] [工会所在群号]】创建新的总伤害统计表
         ///工会所在群号可以缺省
         static void Main(string[] args)
         {
@@ -19,14 +20,6 @@ namespace clanUtils
             GetTotalDmg(args);
             Console.WriteLine("按下回车退出程序");
             Console.ReadLine();
-        }
-
-        struct Member
-        {
-            public long uid;
-            public string name;
-            public long total_dmg;   //总伤害
-            public long times;       //出刀数量   
         }
 
         private static void GetTotalDmg(string[] args)
@@ -124,7 +117,6 @@ namespace clanUtils
                     Member member = new Member();
                     member.uid = Convert.ToInt64(dataReader["uid"]);
                     member.name = dataReader["name"].ToString();
-                    member.times = 0;
                     MemberList.Add(member);
                 }
                 if(MemberList.Count == 0)
@@ -193,17 +185,6 @@ namespace clanUtils
             }
             Console.ForegroundColor = ConsoleColor.White;
 
-            //判断是否指定统计单一boss
-            int bossID = 0;
-            if (args.Length == 3) int.TryParse(args[2], out bossID);
-            if (bossID == 0 || bossID > 5)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("BossID不合法，统计全部数据");
-                bossID = 0;
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-
             //判断输出类型为数据库
             if (getOutType == 1)
             {
@@ -234,28 +215,19 @@ namespace clanUtils
             }
 
             Console.WriteLine("开始计算伤害总和");
-            if (bossID != 0) Console.WriteLine($"只统计对{bossID}王的伤害");
             //统计伤害
             for (int i= 0; i < MemberList.Count; i++)
             {
                 Console.WriteLine("============================");
-                using (SQLiteCommand cmd = new SQLiteCommand(SQLConnection))
+                Member member = MemberList[i];
+                Console.WriteLine($"正在计算  {member.name}  的伤害");
+                for (int id = 1; id < 6; id++)
                 {
-                    cmd.CommandText = $"SELECT * FROM {TableName}" +
-                                    $" WHERE uid='{MemberList[i].uid}'";
-                    if (bossID != 0) cmd.CommandText += $" AND boss='{bossID}'";
-
-                    //读取相应uid的伤害数据
-                    Member member = MemberList[i];//取出当前索引的成员
-                    Console.WriteLine($"正在计算  {MemberList[i].name}  的伤害");
-                    SQLiteDataReader memberDataReader = cmd.ExecuteReader();
-                    while (memberDataReader.Read())
-                    {
-                        member.times++;
-                        member.total_dmg += Convert.ToInt32(memberDataReader["dmg"]);
-                    }
-                    MemberList[i] = member;//更新数据
+                    DMGParse.GetDMG(ref member, id, SQLConnection, TableName);
                 }
+                DMGParse.GetTotalDMG(ref member);
+                MemberList[i] = member;
+
                 Console.WriteLine($"得到  {MemberList[i].name}  的总伤害为  {MemberList[i].total_dmg}  ({MemberList[i].times})");
                 if (getOutType == 1)//判断输出类型为数据库，向统计表插入新行
                 {
@@ -278,66 +250,23 @@ namespace clanUtils
 
             if (getOutType == 2)//判断输出类型为Excel，并写入Excel
             {
-                XSSFWorkbook dmgExcel = null;
-                FileStream excelFile = null;
-                //初始化表格名称
-                string sheetName = bossID == 0 ?
-                                        $"公会战伤害统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}" :
-                                        $"{bossID}王出刀统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}";
+                //初始化表格
+                string sheetName = $"公会战伤害统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}";
+                IWorkbook dmgExcel;
+                FileStream excelFile;
 
                 if (File.Exists(@"伤害统计表.xlsx"))//查找是否已经存在表
                 {
                     excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Open);
                     dmgExcel = new XSSFWorkbook(excelFile);
-                    
-                    //获取表格数据
-                    List<string> sheetNames = new List<string>();
-                    foreach (ISheet sheet in dmgExcel)
-                    {
-                        sheetNames.Add(sheet.SheetName);
-                    }
-                    
-                    if(sheetNames.Where(name => name == sheetName).Count() >= 1)
-                    {
-                        dmgExcel.RemoveSheetAt(dmgExcel.GetSheetIndex(sheetName));
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine("发现今天已进行过统计，删除旧表");
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
+
+                    ExcelParse.SheetExistsParse(dmgExcel, sheetName);
                 }
                 //不存在文件时新建一个
                 else dmgExcel = new XSSFWorkbook();
 
-                ISheet dmgSheet = dmgExcel.CreateSheet(sheetName); //新建一个工作表
-                dmgSheet.CreateRow(0);
+                ExcelParse.GenerateDMGSheet(ref dmgExcel, MemberList, sheetName);
 
-                //写入第一行数据
-                IRow firstRow = dmgSheet.GetRow(0);
-                firstRow.CreateCell(0).SetCellValue("QQ");
-                firstRow.CreateCell(1).SetCellValue("昵称");
-                firstRow.CreateCell(2).SetCellValue("总伤害");
-                firstRow.CreateCell(3).SetCellValue("平均伤害");
-                firstRow.CreateCell(4).SetCellValue("出刀次数");
-
-                //写入伤害数据
-                int rowNum = 1;
-                foreach (Member member in MemberList)
-                {
-                    dmgSheet.CreateRow(rowNum);//创建行
-                    IRow sheetRow = dmgSheet.GetRow(rowNum); // 获得行索引
-                    sheetRow.CreateCell(0).SetCellValue(Convert.ToDouble(member.uid));
-                    sheetRow.CreateCell(1).SetCellValue(member.name);
-                    sheetRow.CreateCell(2).SetCellValue(member.total_dmg);
-                    sheetRow.CreateCell(3).SetCellValue(member.total_dmg / (member.times == 0 ? 1 : member.times));//这里使用三元符号防止除0
-                    sheetRow.CreateCell(4).SetCellValue(member.times);
-                    rowNum++;
-                }
-                //设置自动宽度
-                dmgSheet.AutoSizeColumn(0);
-                dmgSheet.AutoSizeColumn(1);
-                dmgSheet.AutoSizeColumn(2);
-                dmgSheet.AutoSizeColumn(3);
-                dmgSheet.AutoSizeColumn(4);
                 try 
                 {
                     excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Create);

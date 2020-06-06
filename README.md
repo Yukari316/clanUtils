@@ -6,16 +6,14 @@
 
 并将总出刀表导出为Excel表格的小工具
 
-该工具可以多次调用并且不会覆盖已经生成的表格
+~~其实好像也没什么用~~
 
-如果想要统计单一boss写个bat跑跑就好啦
+同时也可以统计对单个boss的伤害和出刀数
 
-想要统计多个boss的单独表格就。。。改指令多运行几次就好了（以后也可能写相应功能吧，咕
+该工具可以多次使用并且不会覆盖已经生成的表格
 
 （以后可能会做有GUI的把,咕咕咕）
 
-
-~~其实好像也没什么用~~
 
  ![](https://img.shields.io/github/release/CBGan/clanUtils.svg) ![](https://img.shields.io/github/license/CBGan/clanUtils.svg)
 
