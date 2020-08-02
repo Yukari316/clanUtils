@@ -1,4 +1,4 @@
-﻿using NPOI.HSSF.UserModel;
+using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -6,11 +6,22 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace clanUtils
 {
     class Program
     {
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr _lopen(string lpPathName, int iReadWrite);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool CloseHandle(IntPtr hObject);
+
+        public const int OF_READWRITE = 2;
+        public const int OF_SHARE_DENY_NONE = 0x40;
+        public static readonly IntPtr HFILE_ERROR = new IntPtr(-1);
+
         ///使用指令 【clanUtils [数据库路径] [工会所在群号]】创建新的总伤害统计表
         ///工会所在群号可以缺省
         static void Main(string[] args)
@@ -251,13 +262,27 @@ namespace clanUtils
             if (getOutType == 2)//判断输出类型为Excel，并写入Excel
             {
                 //初始化表格
-                string sheetName = $"公会战伤害统计_{DateTime.Today.ToString().Substring(0, 8).Replace('/', '-')}";
+                string sheetName = $"公会战伤害统计_{DateTime.Today.Year}-{DateTime.Today.Month}-{DateTime.Today.Day}";
                 IWorkbook dmgExcel;
                 FileStream excelFile;
 
-                if (File.Exists(@"伤害统计表.xlsx"))//查找是否已经存在表
+                if (File.Exists("伤害统计表.xlsx"))//查找是否已经存在表
                 {
-                    excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Open);
+                    //检测文件是否被占用
+                    IntPtr vHandle = _lopen("伤害统计表.xlsx", OF_READWRITE | OF_SHARE_DENY_NONE);
+                    while (vHandle == HFILE_ERROR)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write("文件被占用，按下回车重试");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadLine();
+                        Console.WriteLine("开始重试写入");
+                        vHandle = _lopen("伤害统计表.xlsx", OF_READWRITE | OF_SHARE_DENY_NONE);
+                    }
+                    //关闭文件
+                    CloseHandle(vHandle);
+
+                    excelFile = new FileStream("伤害统计表.xlsx", FileMode.Open);
                     dmgExcel = new XSSFWorkbook(excelFile);
 
                     ExcelParse.SheetExistsParse(dmgExcel, sheetName);
@@ -269,7 +294,7 @@ namespace clanUtils
 
                 try 
                 {
-                    excelFile = new FileStream(@"伤害统计表.xlsx", FileMode.Create);
+                    excelFile = new FileStream("伤害统计表.xlsx", FileMode.Create);
                     dmgExcel.Write(excelFile);
                     excelFile.Close();
                     Console.ForegroundColor = ConsoleColor.Cyan;
