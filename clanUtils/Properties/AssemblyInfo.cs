@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("clanUtils")]
-[assembly: AssemblyDescription("用于将HoshinoBot数据库内的公会战表进行伤害统计并生成excel表格")]
-[assembly: AssemblyConfiguration("clanUtils")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("clanUtils")]
-[assembly: AssemblyCopyright("CBGan ©  2020")]
+[assembly: AssemblyCopyright("Copyright © CBGan  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("7fd00c1f-a5dc-4955-aeb0-2ddcfc69ada5")]
+[assembly: Guid("77ab7c88-e02c-49f1-9a72-c0876db08c9e")]
 
 // 程序集的版本信息由下列四个值组成: 
 //
@@ -32,4 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.7")]
+[assembly: AssemblyVersion("2.0")]
+[assembly: AssemblyFileVersion("2.0")]
