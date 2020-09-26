@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="DatabaseUtils\DatabaseHelper.cs" />
     <Compile Include="Program\DmgParse.cs" />
+    <Compile Include="Program\GuildInfoParse.cs" />
     <Compile Include="Program\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Res\Enums.cs" />
