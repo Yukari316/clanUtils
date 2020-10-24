@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "clanUtils": {
+      "commandName": "Project",
+      "commandLineArgs": "H:\\Projects\\开发相关\\clanUtils-env\\data.db"
+    }
+  }
+}

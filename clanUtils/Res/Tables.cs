@@ -13,14 +13,16 @@ namespace clanUtils.Res
         public long          TotalDmg     { get; set; }
         public double        TotalAvgDmg  { get; set; }
         public int           TotalTimes   { get; set; }
+        public double        Deviation    { get; set; }
         public List<BossDmg> BossDmgInfos { get; set; }
     }
 
     internal class BossDmg
     {
-        public long   Dmg    { get; set; }
-        public double AvgDmg { get; set; }
-        public int    Times  { get; set; }
+        public long   Dmg       { get; set; }
+        public double AvgDmg    { get; set; }
+        public int    Count     { get; set; }
+        public double Deviation { get; set; }
     }
 
     internal class GuildInfoLite

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using clanUtils.DatabaseUtils;
 using clanUtils.Res;
 using clanUtils.Utils;
@@ -25,15 +23,15 @@ namespace clanUtils.Program
         static void GenAtkTable(string[] args)
         {
             //创建数据库实例
-            DatabaseHelper suiseiDb = new DatabaseHelper(args[0]);
+            DatabaseHelper db = new DatabaseHelper(args[0]);
             //处理输入参数
-            GuildInfoParse.GetGuildInfo(ref suiseiDb,args);
+            GuildInfoParse.GetGuildInfo(ref db,args);
             //处理伤害数据
             ConsoleLog.Info("数据库","正在从数据库读取数据...");
-            List<AtkData> atkDatas = DMGParse.ParseAtkDatas(suiseiDb.GetAllAtk(), suiseiDb.GetAllMember());
+            List<AtkData> atkDatas = DMGParse.ParseAtkDatas(db.GetAllAtk(), db.GetAllMember());
             //生成伤害统计表
             ConsoleLog.Info("Excel生成","正在写入数据到文件...");
-            WorkBookParse.GenerateDmgWorkbook(atkDatas, suiseiDb.GuildInfo.GuildName);
+            WorkBookParse.GenerateDmgWorkbook(atkDatas, db.GuildInfo.GuildName);
             ConsoleLog.Info("Excel生成","伤害统计完成\r\n");
             Console.WriteLine("按下任意键退出程序");
             Console.ReadKey();

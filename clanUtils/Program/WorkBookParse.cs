@@ -33,22 +33,27 @@ namespace clanUtils.Program
             firstRow.CreateCell(5).SetCellValue("对一王总伤害");
             firstRow.CreateCell(6).SetCellValue("对一王平均伤害");
             firstRow.CreateCell(7).SetCellValue("对一王出刀次数");
+            firstRow.CreateCell(8).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(8).SetCellValue("对二王总伤害");
-            firstRow.CreateCell(9).SetCellValue("对二王平均伤害");
-            firstRow.CreateCell(10).SetCellValue("对二王出刀次数");
+            firstRow.CreateCell(9).SetCellValue("对二王总伤害");
+            firstRow.CreateCell(10).SetCellValue("对二王平均伤害");
+            firstRow.CreateCell(11).SetCellValue("对二王出刀次数");
+            firstRow.CreateCell(12).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(11).SetCellValue("对三王总伤害");
-            firstRow.CreateCell(12).SetCellValue("对三王平均伤害");
-            firstRow.CreateCell(13).SetCellValue("对三王出刀次数");
+            firstRow.CreateCell(13).SetCellValue("对三王总伤害");
+            firstRow.CreateCell(14).SetCellValue("对三王平均伤害");
+            firstRow.CreateCell(15).SetCellValue("对三王出刀次数");
+            firstRow.CreateCell(16).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(14).SetCellValue("对四王总伤害");
-            firstRow.CreateCell(15).SetCellValue("对四王平均伤害");
-            firstRow.CreateCell(16).SetCellValue("对四王出刀次数");
+            firstRow.CreateCell(17).SetCellValue("对四王总伤害");
+            firstRow.CreateCell(18).SetCellValue("对四王平均伤害");
+            firstRow.CreateCell(19).SetCellValue("对四王出刀次数");
+            firstRow.CreateCell(20).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(17).SetCellValue("对五王总伤害");
-            firstRow.CreateCell(18).SetCellValue("对五王平均伤害");
-            firstRow.CreateCell(19).SetCellValue("对五王出刀次数");
+            firstRow.CreateCell(21).SetCellValue("对五王总伤害");
+            firstRow.CreateCell(22).SetCellValue("对五王平均伤害");
+            firstRow.CreateCell(23).SetCellValue("对五王出刀次数");
+            firstRow.CreateCell(24).SetCellValue("RSD(%)");
 
             //写入伤害数据
             int rowNum = 1;
@@ -69,7 +74,8 @@ namespace clanUtils.Program
                 {
                     sheetRow.CreateCell(colNum++).SetCellValue(bossDmg.Dmg);
                     sheetRow.CreateCell(colNum++).SetCellValue(double.IsNaN(bossDmg.AvgDmg) ? 0 : bossDmg.AvgDmg);
-                    sheetRow.CreateCell(colNum++).SetCellValue(bossDmg.Times);
+                    sheetRow.CreateCell(colNum++).SetCellValue(bossDmg.Count);
+                    sheetRow.CreateCell(colNum++).SetCellValue(bossDmg.Deviation);
                 }
                 rowNum++;
             }
