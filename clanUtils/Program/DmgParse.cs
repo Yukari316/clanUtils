@@ -16,44 +16,29 @@ namespace clanUtils.Program
 
             #region 计算总平均值和单独boss平均值
             //总平均值
-            double TotalAvgDmg = atkList.Where(atk =>
-                                                   atk.Attack != AttackType.Compensate &&
-                                                   atk.Attack != AttackType.CompensateKill)
-                                        .Average(atk => atk.Damage);
+            double TotalAvgDmg = atkList.Average(atk => atk.Damage);
             //总出刀计数
-            double TotalAtkCount = atkList.Count(atk =>
-                                                     atk.Attack != AttackType.Compensate &&
-                                                     atk.Attack != AttackType.CompensateKill);
+            double TotalAtkCount = atkList.Count;
             //各boss的平均伤害
             List<double> AtkAvgDmg = new List<double>();
             //Boss1
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Attack != AttackType.Compensate     &&
-                                            atk.Attack != AttackType.CompensateKill &&
                                             atk.Order  == 1)
                                  .Average(atk => atk.Damage));
             //Boss2
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Attack != AttackType.Compensate     &&
-                                            atk.Attack != AttackType.CompensateKill &&
                                             atk.Order  == 2)
                                  .Average(atk => atk.Damage));
             //Boss3
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Attack != AttackType.Compensate     &&
-                                            atk.Attack != AttackType.CompensateKill &&
                                             atk.Order  == 3)
                                  .Average(atk => atk.Damage));
             //Boss4
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Attack != AttackType.Compensate     &&
-                                            atk.Attack != AttackType.CompensateKill &&
                                             atk.Order  == 4)
                                  .Average(atk => atk.Damage));
             //Boss5
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Attack != AttackType.Compensate     &&
-                                            atk.Attack != AttackType.CompensateKill &&
                                             atk.Order  == 5)
                                  .Average(atk => atk.Damage));
             #endregion
@@ -69,13 +54,9 @@ namespace clanUtils.Program
                 {
                     BossDmg bossDmg = new BossDmg
                     {
-                        Dmg = atkList.Where(atk => atk.Order == i && atk.Uid == memberInfo.Uid &&
-                                                   atk.Attack != AttackType.Compensate &&
-                                                    atk.Attack != AttackType.CompensateKill)
+                        Dmg = atkList.Where(atk => atk.Order == i && atk.Uid == memberInfo.Uid)
                                      .Sum(dmg => dmg.Damage),
-                        Count = atkList.Where(atk => atk.Uid == memberInfo.Uid && 
-                                                     atk.Attack != AttackType.Compensate && 
-                                                      atk.Attack != AttackType.CompensateKill)
+                        Count = atkList.Where(atk => atk.Uid == memberInfo.Uid)
                                        .Count(atk => atk.Order == i),
                     };
                     bossDmg.AvgDmg    = Math.Round((double) bossDmg.Dmg / bossDmg.Count);
@@ -83,10 +64,8 @@ namespace clanUtils.Program
                     bossDmg.Deviation = bossDmg.Count == 0
                         ? 0
                         : Math.Round(Math.Sqrt(atkList
-                                               .Where(atk => atk.Uid    == memberInfo.Uid        &&
-                                                             atk.Order  == i                     &&
-                                                             atk.Attack != AttackType.Compensate &&
-                                                             atk.Attack != AttackType.CompensateKill)
+                                               .Where(atk => atk.Uid   == memberInfo.Uid &&
+                                                             atk.Order == i)
                                                .Sum(atk => Math.Pow(atk.Damage - AtkAvgDmg[i - 1], 2))
                                              / bossDmg.Count) / AtkAvgDmg[i - 1] * 100, 2) *
                           (bossDmg.AvgDmg > AtkAvgDmg[i - 1] ? 1 : -1);
@@ -106,9 +85,7 @@ namespace clanUtils.Program
                 atkData.TotalAvgDmg = (double) atkData.TotalDmg / atkData.TotalTimes;
                 //计算总体相对标准偏差
                 atkData.Deviation = Math.Round(Math.Sqrt(atkList
-                                                         .Where(atk => atk.Uid    == memberInfo.Uid        &&
-                                                                       atk.Attack != AttackType.Compensate &&
-                                                                       atk.Attack != AttackType.CompensateKill)
+                                                         .Where(atk => atk.Uid == memberInfo.Uid)
                                                          .Sum(atk => Math.Pow(atk.Damage - TotalAvgDmg, 2))
                                                        / TotalAtkCount) / TotalAvgDmg * 100, 2) *
                                     (atkData.TotalAvgDmg > TotalAvgDmg ? 1 : -1);
