@@ -24,36 +24,38 @@ namespace clanUtils.Program
 
             //写入第一行数据
             IRow firstRow = dmgSheet.GetRow(0);
-            firstRow.CreateCell(0).SetCellValue("QQ");
-            firstRow.CreateCell(1).SetCellValue("昵称");
-            firstRow.CreateCell(2).SetCellValue("总伤害");
-            firstRow.CreateCell(3).SetCellValue("平均伤害");
-            firstRow.CreateCell(4).SetCellValue("出刀次数");
+            int  rowCount = 0;
+            firstRow.CreateCell(rowCount++).SetCellValue("QQ");
+            firstRow.CreateCell(rowCount++).SetCellValue("昵称");
+            firstRow.CreateCell(rowCount++).SetCellValue("总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("出刀次数");
+            firstRow.CreateCell(rowCount++).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(5).SetCellValue("对一王总伤害");
-            firstRow.CreateCell(6).SetCellValue("对一王平均伤害");
-            firstRow.CreateCell(7).SetCellValue("对一王出刀次数");
-            firstRow.CreateCell(8).SetCellValue("RSD(%)");
+            firstRow.CreateCell(rowCount++).SetCellValue("对一王总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对一王平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对一王出刀次数");
+            firstRow.CreateCell(rowCount++).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(9).SetCellValue("对二王总伤害");
-            firstRow.CreateCell(10).SetCellValue("对二王平均伤害");
-            firstRow.CreateCell(11).SetCellValue("对二王出刀次数");
-            firstRow.CreateCell(12).SetCellValue("RSD(%)");
+            firstRow.CreateCell(rowCount++).SetCellValue("对二王总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对二王平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对二王出刀次数");
+            firstRow.CreateCell(rowCount++).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(13).SetCellValue("对三王总伤害");
-            firstRow.CreateCell(14).SetCellValue("对三王平均伤害");
-            firstRow.CreateCell(15).SetCellValue("对三王出刀次数");
-            firstRow.CreateCell(16).SetCellValue("RSD(%)");
+            firstRow.CreateCell(rowCount++).SetCellValue("对三王总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对三王平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对三王出刀次数");
+            firstRow.CreateCell(rowCount++).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(17).SetCellValue("对四王总伤害");
-            firstRow.CreateCell(18).SetCellValue("对四王平均伤害");
-            firstRow.CreateCell(19).SetCellValue("对四王出刀次数");
-            firstRow.CreateCell(20).SetCellValue("RSD(%)");
+            firstRow.CreateCell(rowCount++).SetCellValue("对四王总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对四王平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对四王出刀次数");
+            firstRow.CreateCell(rowCount++).SetCellValue("RSD(%)");
 
-            firstRow.CreateCell(21).SetCellValue("对五王总伤害");
-            firstRow.CreateCell(22).SetCellValue("对五王平均伤害");
-            firstRow.CreateCell(23).SetCellValue("对五王出刀次数");
-            firstRow.CreateCell(24).SetCellValue("RSD(%)");
+            firstRow.CreateCell(rowCount++).SetCellValue("对五王总伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对五王平均伤害");
+            firstRow.CreateCell(rowCount++).SetCellValue("对五王出刀次数");
+            firstRow.CreateCell(rowCount).SetCellValue("RSD(%)");
 
             //写入伤害数据
             int rowNum = 1;
@@ -69,6 +71,7 @@ namespace clanUtils.Program
                 sheetRow.CreateCell(colNum++).SetCellValue(atkData.TotalDmg);
                 sheetRow.CreateCell(colNum++).SetCellValue(double.IsNaN(atkData.TotalAvgDmg) ? 0 : atkData.TotalAvgDmg);
                 sheetRow.CreateCell(colNum++).SetCellValue(atkData.TotalTimes);
+                sheetRow.CreateCell(colNum++).SetCellValue(atkData.Deviation);
                 //boss伤害数据
                 foreach (BossDmg bossDmg in atkData.BossDmgInfos)
                 {
