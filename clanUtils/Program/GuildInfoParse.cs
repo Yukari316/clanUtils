@@ -49,24 +49,25 @@ namespace clanUtils.Program
                 else
                 {
                     ConsoleLog.Info("公会信息检查",$"检测到 {guilds.Count} 个公会信息");
-                    Console.WriteLine("请选择工会对应群号的编号：");
-                    guilds.ForEach(guild => Console.WriteLine($"{guilds.IndexOf(guild)} - {guild.Gid} - {guild.GuildName}"));
+                    ConsoleLog.Info("选择公会","请选择工会对应群号的编号：");
+                    guilds.ForEach(guild => ConsoleLog.Info("公会",$"{guilds.IndexOf(guild)} - {guild.Gid} - {guild.GuildName}"));
                     int getIndex = -1;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
                     while (getIndex < 0 || getIndex > guilds.Count - 1)
                     {
                         if (int.TryParse(Console.ReadLine(), out getIndex)) //尝试转换输入
                         {
                             //检查输入数值合法性
-                            if (getIndex < 0 || getIndex > guilds.Count - 1) Console.WriteLine("弟啊你选了啥啊,重新写个编号");
+                            if (getIndex < 0 || getIndex > guilds.Count - 1) ConsoleLog.Error("非法编号"," 弟啊你选了啥啊,重新写个编号");
                         }
                         else 
                         {
-                            Console.WriteLine("弟啊你这不是数字啊,重新写个编号");
+                            ConsoleLog.Error("非法编号"," 弟啊你这不是数字啊,重新写个编号");
                             getIndex = -1;
                         }
+                        Console.SetCursorPosition(0,Console.WindowHeight - 2);
+                        Console.Write(new string(' ',Console.WindowWidth));
+                        Console.SetCursorPosition(0,Console.WindowHeight - 2);
                     }
-                    Console.ForegroundColor = ConsoleColor.White;
                     suiseiDb.GuildInfo      = guilds[getIndex];
                     ConsoleLog.Info("公会信息检查",$"已选择公会 {suiseiDb.GuildInfo.GuildName}");
                 }
@@ -79,6 +80,8 @@ namespace clanUtils.Program
                 ConsoleLog.Error("arg error","所选公会未开启会战统计");
                 Thread.Sleep(5000);
             }
+            ConsoleLog.statusConsole.WriteLine("选择公会:");
+            ConsoleLog.statusConsole.WriteLine($"{suiseiDb.GuildInfo.GuildName}");
         }
     }
 }

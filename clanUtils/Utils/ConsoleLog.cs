@@ -1,11 +1,22 @@
 using System;
 using System.Text;
 using System.Threading;
+using Konsole;
 
 namespace clanUtils.Utils
 {
     internal static class ConsoleLog
     {
+        #region 控制台输出控制
+
+        private static Window logWindow = new Window(Console.WindowWidth, Console.WindowHeight - 2);
+
+        private static IConsole logConsole =
+            logWindow.OpenBox("Log", 15, 0, Console.WindowWidth - 15, Console.WindowHeight - 2);
+        internal static IConsole statusConsole =
+            logWindow.OpenBox("统计信息", 0, 0, 15, Console.WindowHeight - 2);
+        #endregion
+
         #region 格式化错误Log
         public static string ErrorLogBuilder(Exception e)
         {
@@ -33,8 +44,8 @@ namespace clanUtils.Utils
         /// <param name="message">信息内容</param>
         public static void Info(object type, object message)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"[INFO][{type}]{message}");
+            logConsole.ForegroundColor = ConsoleColor.White;
+            logConsole.WriteLine($"[INFO][{type}]{message}");
         }
 
         /// <summary>
@@ -44,15 +55,15 @@ namespace clanUtils.Utils
         /// <param name="message">信息内容</param>
         public static void Error(object type, object message)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("[");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("ERROR");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($"][{type}]");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
+            logConsole.ForegroundColor = ConsoleColor.White;
+            logConsole.Write("[");
+            logConsole.ForegroundColor = ConsoleColor.Red;
+            logConsole.Write("ERROR");
+            logConsole.ForegroundColor = ConsoleColor.White;
+            logConsole.Write($"][{type}]");
+            logConsole.ForegroundColor = ConsoleColor.Red;
+            logConsole.WriteLine(message.ToString());
+            logConsole.ForegroundColor = ConsoleColor.White;
         }
 
         /// <summary>
@@ -62,15 +73,15 @@ namespace clanUtils.Utils
         /// <param name="message">信息内容</param>
         private static void Fatal(object type, object message)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("[");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write("FATAL");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($"][{type}]");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
+            logConsole.ForegroundColor = ConsoleColor.White;
+            logConsole.Write("[");
+            logConsole.ForegroundColor = ConsoleColor.DarkRed;
+            logConsole.Write("FATAL");
+            logConsole.ForegroundColor = ConsoleColor.White;
+            logConsole.Write($"][{type}]");
+            logConsole.ForegroundColor = ConsoleColor.DarkRed;
+            logConsole.WriteLine(message.ToString());
+            logConsole.ForegroundColor = ConsoleColor.White;
         }
 
         #region 全局错误Log

@@ -17,8 +17,12 @@ namespace clanUtils.Program
             #region 计算总平均值和单独boss平均值
             //总平均值
             double TotalAvgDmg = atkList.Average(atk => atk.Damage);
+            ConsoleLog.statusConsole.WriteLine("平均伤害");
+            ConsoleLog.statusConsole.WriteLine(TotalAvgDmg.ToString());
             //总出刀计数
             double TotalAtkCount = atkList.Count;
+            ConsoleLog.statusConsole.WriteLine("总出刀数:");
+            ConsoleLog.statusConsole.WriteLine(TotalAtkCount.ToString());
             //各boss的平均伤害
             List<double> AtkAvgDmg = new List<double>();
             //Boss1
@@ -41,6 +45,17 @@ namespace clanUtils.Program
             AtkAvgDmg.Add(atkList.Where(atk =>
                                             atk.Order  == 5)
                                  .Average(atk => atk.Damage));
+
+            ConsoleLog.statusConsole.WriteLine("一王均伤");
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[0].ToString());
+            ConsoleLog.statusConsole.WriteLine("二王均伤");
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[1].ToString());
+            ConsoleLog.statusConsole.WriteLine("三王均伤");
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[2].ToString());
+            ConsoleLog.statusConsole.WriteLine("四王均伤");
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[3].ToString());
+            ConsoleLog.statusConsole.WriteLine("五王均伤");
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[4].ToString());
             #endregion
             
             //计算个人单独总和数据

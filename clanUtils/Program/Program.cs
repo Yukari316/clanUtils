@@ -13,7 +13,7 @@ namespace clanUtils.Program
         ///工会所在群号可以缺省
         static int Main(string[] args)
         {
-            Console.WriteLine($"clanUtils会战出刀统计工具 by饼干\r\nVersion {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}");
+            ConsoleLog.Info("",$"clanUtils会战出刀统计工具 by饼干 Version {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}");
             //参数检查
             if (args.Length < 1 || !File.Exists(args[0]) || args.Length > 2) return -1;
             GenAtkTable(args);
@@ -33,7 +33,7 @@ namespace clanUtils.Program
             ConsoleLog.Info("Excel生成","正在写入数据到文件...");
             WorkBookParse.GenerateDmgWorkbook(atkDatas, db.GuildInfo.GuildName);
             ConsoleLog.Info("Excel生成","伤害统计完成\r\n");
-            Console.WriteLine("按下任意键退出程序");
+            ConsoleLog.Info("","按下任意键退出程序");
             Console.ReadKey();
         }
     }
