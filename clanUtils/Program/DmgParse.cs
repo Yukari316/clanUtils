@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using clanUtils.Res;
 using clanUtils.Utils;
@@ -16,46 +17,60 @@ namespace clanUtils.Program
 
             #region 计算总平均值和单独boss平均值
             //总平均值
-            double TotalAvgDmg = atkList.Average(atk => atk.Damage);
+            double TotalAvgDmg = atkList.Sum(atk => atk.Damage) /
+                                 (double) atkList.Count(atk => atk.Attack != AttackType.Compensate &&
+                                                               atk.Attack != AttackType.CompensateKill);
             ConsoleLog.statusConsole.WriteLine("平均伤害");
-            ConsoleLog.statusConsole.WriteLine(TotalAvgDmg.ToString());
+            ConsoleLog.statusConsole.WriteLine(TotalAvgDmg.ToString(CultureInfo.InvariantCulture));
             //总出刀计数
-            double TotalAtkCount = atkList.Count;
+            double TotalAtkCount = atkList.Count(atk => atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill);
             ConsoleLog.statusConsole.WriteLine("总出刀数:");
-            ConsoleLog.statusConsole.WriteLine(TotalAtkCount.ToString());
+            ConsoleLog.statusConsole.WriteLine(TotalAtkCount.ToString(CultureInfo.InvariantCulture));
             //各boss的平均伤害
             List<double> AtkAvgDmg = new List<double>();
             //Boss1
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Order  == 1)
-                                 .Average(atk => atk.Damage));
+                                            atk.Order == 1)
+                                 .Sum(atk => atk.Damage) /
+                          (double) atkList.Count(atk => atk.Order  == 1 && atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill)
+                         );
             //Boss2
             AtkAvgDmg.Add(atkList.Where(atk =>
-                                            atk.Order  == 2)
-                                 .Average(atk => atk.Damage));
+                                            atk.Order == 2)
+                                 .Sum(atk => atk.Damage) /
+                          (double) atkList.Count(atk => atk.Order  == 2 && atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill));
             //Boss3
             AtkAvgDmg.Add(atkList.Where(atk =>
                                             atk.Order  == 3)
-                                 .Average(atk => atk.Damage));
+                                 .Sum(atk => atk.Damage) /
+                          (double) atkList.Count(atk => atk.Order  == 3 && atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill));
             //Boss4
             AtkAvgDmg.Add(atkList.Where(atk =>
                                             atk.Order  == 4)
-                                 .Average(atk => atk.Damage));
+                                 .Sum(atk => atk.Damage) /
+                          (double) atkList.Count(atk => atk.Order  == 4 && atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill));
             //Boss5
             AtkAvgDmg.Add(atkList.Where(atk =>
                                             atk.Order  == 5)
-                                 .Average(atk => atk.Damage));
+                                 .Sum(atk => atk.Damage) /
+                          (double) atkList.Count(atk => atk.Order  == 5 && atk.Attack != AttackType.Compensate &&
+                                                        atk.Attack != AttackType.CompensateKill));
 
             ConsoleLog.statusConsole.WriteLine("一王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[0].ToString());
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[0].ToString(CultureInfo.InvariantCulture));
             ConsoleLog.statusConsole.WriteLine("二王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[1].ToString());
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[1].ToString(CultureInfo.InvariantCulture));
             ConsoleLog.statusConsole.WriteLine("三王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[2].ToString());
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[2].ToString(CultureInfo.InvariantCulture));
             ConsoleLog.statusConsole.WriteLine("四王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[3].ToString());
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[3].ToString(CultureInfo.InvariantCulture));
             ConsoleLog.statusConsole.WriteLine("五王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[4].ToString());
+            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[4].ToString(CultureInfo.InvariantCulture));
             #endregion
             
             //计算个人单独总和数据
@@ -72,7 +87,8 @@ namespace clanUtils.Program
                         Dmg = atkList.Where(atk => atk.Order == i && atk.Uid == memberInfo.Uid)
                                      .Sum(dmg => dmg.Damage),
                         Count = atkList.Where(atk => atk.Uid == memberInfo.Uid)
-                                       .Count(atk => atk.Order == i),
+                                       .Count(atk => atk.Order == i && atk.Attack != AttackType.Compensate &&
+                                                                             atk.Attack != AttackType.CompensateKill)
                     };
                     bossDmg.AvgDmg    = Math.Round((double) bossDmg.Dmg / bossDmg.Count);
                     //计算总体相对标准偏差
