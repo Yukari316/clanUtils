@@ -2,7 +2,8 @@
   "profiles": {
     "clanUtils": {
       "commandName": "Project",
-      "commandLineArgs": "H:\\Projects\\开发相关\\clanUtils-env\\data.db"
+      "commandLineArgs": "E:\\Desktop\\bot\\clanUtils\\data.db 1040278564",
+      "nativeDebugging": false
     }
   }
 }
