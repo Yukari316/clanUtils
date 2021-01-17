@@ -2,7 +2,7 @@
 ###### 奇怪の晓工具 by 饼干
 
 ## 简介
-其实就是一个可以解析[SuiseiBot](https://github.com/CBGan/SuiseiBot)数据库
+其实就是一个可以解析[AntiRainBot](https://github.com/Yukari316/AntiRainBot)数据库
 
 并将总出刀表导出为Excel表格的小工具
 
@@ -15,7 +15,7 @@
 （以后可能会做有GUI的把,咕咕咕）
 
 
- ![](https://img.shields.io/github/release/CBGan/clanUtils.svg?style=for-the-badge) ![](https://img.shields.io/github/license/CBGan/clanUtils.svg?style=for-the-badge)
+ ![](https://img.shields.io/github/release/Yukari316/clanUtils.svg?style=for-the-badge) ![](https://img.shields.io/github/license/Yukari316/clanUtils.svg?style=for-the-badge)
 
 ## 使用方法
 #### 直接生成表格
