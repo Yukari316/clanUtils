@@ -10,7 +10,7 @@ namespace clanUtils.Program
 {
     internal static class GuildInfoParse
     {
-        public static void GetGuildInfo(ref DatabaseHelper suiseiDb,string[] args)
+        public static void GetGuildInfo(ref DatabaseHelper antirainDb,string[] args)
         {
             //检查群号合法性
             if (args.Length == 2)
@@ -21,18 +21,18 @@ namespace clanUtils.Program
                     Thread.Sleep(5000);
                     return;
                 }
-                if (!suiseiDb.GuildExists(gid))
+                if (!antirainDb.GuildExists(gid))
                 {
                     ConsoleLog.Error("参数错误","公会不存在");
                     Thread.Sleep(5000);
                     return;
                 }
-                suiseiDb.GuildInfo = suiseiDb.GetGuildInfo(gid);
+                antirainDb.GuildInfo = antirainDb.GetGuildInfo(gid);
             }
             //没有输入群号则获取
             else
             {
-                List<GuildInfoLite> guilds = suiseiDb.GetGuildInfos();
+                List<GuildInfoLite> guilds = antirainDb.GetGuildInfos();
                 if (guilds == null || guilds.Count == 0)
                 {
                     ConsoleLog.Error("数据库错误","弟啊你这库里啥都没有啊（半恼）");
@@ -42,8 +42,8 @@ namespace clanUtils.Program
                 //数据库中只有一个公会信息
                 if (guilds.Count == 1)
                 {
-                    suiseiDb.GuildInfo = guilds.First();
-                    ConsoleLog.Info("公会信息检查",$"检测到单一公会,已自动选择公会 {suiseiDb.GuildInfo.GuildName}");
+                    antirainDb.GuildInfo = guilds.First();
+                    ConsoleLog.Info("公会信息检查",$"检测到单一公会,已自动选择公会 {antirainDb.GuildInfo.GuildName}");
                 }
                 //有多个公会信息
                 else
@@ -64,24 +64,20 @@ namespace clanUtils.Program
                             ConsoleLog.Error("非法编号"," 弟啊你这不是数字啊,重新写个编号");
                             getIndex = -1;
                         }
-                        Console.SetCursorPosition(0,Console.WindowHeight - 2);
-                        Console.Write(new string(' ',Console.WindowWidth));
-                        Console.SetCursorPosition(0,Console.WindowHeight - 2);
                     }
-                    suiseiDb.GuildInfo      = guilds[getIndex];
-                    ConsoleLog.Info("公会信息检查",$"已选择公会 {suiseiDb.GuildInfo.GuildName}");
+                    antirainDb.GuildInfo      = guilds[getIndex];
+                    ConsoleLog.Info("公会信息检查",$"已选择公会 {antirainDb.GuildInfo.GuildName}");
+                    Console.Title += $" - {antirainDb.GuildInfo.GuildName}";
                 }
             }
             //检查公会是否启用会战统计
-            if (!suiseiDb.GuildInfo.InBattle ||
-                suiseiDb.AtkDataEmpty()      ||
-                !suiseiDb.AtkTableExists())
+            if (!antirainDb.GuildInfo.InBattle ||
+                antirainDb.AtkDataEmpty()      ||
+                !antirainDb.AtkTableExists())
             {
                 ConsoleLog.Error("arg error","所选公会未开启会战统计");
                 Thread.Sleep(5000);
             }
-            ConsoleLog.statusConsole.WriteLine("选择公会:");
-            ConsoleLog.statusConsole.WriteLine($"{suiseiDb.GuildInfo.GuildName}");
         }
     }
 }

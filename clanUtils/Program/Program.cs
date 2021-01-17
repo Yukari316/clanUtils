@@ -32,7 +32,7 @@ namespace clanUtils.Program
             //生成伤害统计表
             ConsoleLog.Info("Excel生成","正在写入数据到文件...");
             WorkBookParse.GenerateDmgWorkbook(atkDatas, db.GuildInfo.GuildName);
-            ConsoleLog.Info("Excel生成","伤害统计完成\r\n");
+            ConsoleLog.Info("Excel生成","伤害统计完成");
             ConsoleLog.Info("","按下任意键退出程序");
             Console.ReadKey();
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using clanUtils.Res;
 using clanUtils.Utils;
@@ -20,13 +19,9 @@ namespace clanUtils.Program
             double TotalAvgDmg = atkList.Sum(atk => atk.Damage) /
                                  (double) atkList.Count(atk => atk.Attack != AttackType.Compensate &&
                                                                atk.Attack != AttackType.CompensateKill);
-            ConsoleLog.statusConsole.WriteLine("平均伤害");
-            ConsoleLog.statusConsole.WriteLine(TotalAvgDmg.ToString(CultureInfo.InvariantCulture));
             //总出刀计数
             double TotalAtkCount = atkList.Count(atk => atk.Attack != AttackType.Compensate &&
                                                         atk.Attack != AttackType.CompensateKill);
-            ConsoleLog.statusConsole.WriteLine("总出刀数:");
-            ConsoleLog.statusConsole.WriteLine(TotalAtkCount.ToString(CultureInfo.InvariantCulture));
             //各boss的平均伤害
             List<double> AtkAvgDmg = new List<double>();
             //Boss1
@@ -60,17 +55,6 @@ namespace clanUtils.Program
                                  .Sum(atk => atk.Damage) /
                           (double) atkList.Count(atk => atk.Order  == 5 && atk.Attack != AttackType.Compensate &&
                                                         atk.Attack != AttackType.CompensateKill));
-
-            ConsoleLog.statusConsole.WriteLine("一王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[0].ToString(CultureInfo.InvariantCulture));
-            ConsoleLog.statusConsole.WriteLine("二王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[1].ToString(CultureInfo.InvariantCulture));
-            ConsoleLog.statusConsole.WriteLine("三王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[2].ToString(CultureInfo.InvariantCulture));
-            ConsoleLog.statusConsole.WriteLine("四王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[3].ToString(CultureInfo.InvariantCulture));
-            ConsoleLog.statusConsole.WriteLine("五王均伤");
-            ConsoleLog.statusConsole.WriteLine(AtkAvgDmg[4].ToString(CultureInfo.InvariantCulture));
             #endregion
             
             //计算个人单独总和数据
